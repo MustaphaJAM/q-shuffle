@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum QuestionType {
+  MCQ
+  TrueFalse
+  ShortAnswer
+}
+
+model User {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  name             String?
+  email            String?   @unique
+  emailVerified    Boolean?
+  image            String?
+  hashedPassword   String?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  role             Role      @default(user)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  accounts         Account[]
+  exams            Exam[]    @relation("UserExams")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String  @db.ObjectId
+
+  @@unique([provider, providerAccountId])
+}
+
+model Exam {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  name            String        @db.String
+  description     String        @db.String
+  duration        Int // Duration in minutes
+  passPercent     Int // Passing percentage
+  published       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  questions       Question[]    @relation("ExamQuestions")
+  user            User          @relation("UserExams", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String        @db.ObjectId
+  allowNavigation Boolean       @default(true)
+  showResults     Boolean       @default(true)
+  sessions        ExamSession[]
+  publicLink      String?       @unique // For storing the public access link
+  publicActive    Boolean       @default(false)
+}
+
+model Question {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  text           String   @db.String
+  options        String[] // Array of options
+  correctAnswers Int[] // Indices of correct answers
+  image          String? // URL or file path for image
+  timeLimit      Int // Time limit in seconds
+  exam           Exam     @relation("ExamQuestions", fields: [examId], references: [id], onDelete: Cascade)
+  examId         String   @db.ObjectId
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ****
+model ExamSession {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  examId         String    @db.ObjectId
+  exam           Exam      @relation(fields: [examId], references: [id])
+  studentName    String
+  studentSurname String
+  studentCNE     String
+  startTime      DateTime  @default(now())
+  endTime        DateTime?
+  completed      Boolean   @default(false)
+  score          Float?
+  answers        Answer[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Answer {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  examSession     ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId       String      @db.ObjectId
+  questionId      String      @db.ObjectId
+  selectedOptions Int[]
+  timeSpent       Int // Time spent in seconds
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
