@@ -13,7 +13,9 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">Welcome Back, Admin!</h1>
-        <p className="mt-2 text-gray-600">Here's what's happening with your exams today.</p>
+        <p className="mt-2 text-gray-600">
+          Here&apos;s what&apos;s happening with your exams today.
+        </p>
       </div>
 
       {/* Stats Grid */}
