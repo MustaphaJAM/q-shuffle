@@ -1,8 +1,8 @@
 'use client';
 import { useCallback, useState, useEffect } from 'react';
-import { useForm, FieldValues, SubmitHandler, set } from 'react-hook-form';
+import { useForm, FieldValues, SubmitHandler } from 'react-hook-form';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { motion, useAnimation, useAnimationControls } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 
 import SocialLogin from './components/SocialLogin';
@@ -79,21 +79,24 @@ const Auth = () => {
     setVariant(variant);
   };
 
-  const confirmEmail = async (token: string) => {
-    try {
-      const data = await activateUser(token);
-      setBottomMessage({ type: 'success', message: data.message });
-      setValue('email', data.email);
-    } catch (error: any) {
-      setBottomMessage({ type: 'error', message: error?.message || 'Error' });
-    }
-  };
+  const confirmEmail = useCallback(
+    async (token: string) => {
+      try {
+        const data = await activateUser(token);
+        setBottomMessage({ type: 'success', message: data.message });
+        setValue('email', data.email);
+      } catch (error: any) {
+        setBottomMessage({ type: 'error', message: error?.message || 'Error' });
+      }
+    },
+    [activateUser, setValue],
+  ); // Memoize confirmEmail
 
   useEffect(() => {
     if (token) {
       confirmEmail(token);
     }
-  }, [token]);
+  }, [token, confirmEmail]); // Add confirmEmail to the dependency array
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setBottomMessage(null);

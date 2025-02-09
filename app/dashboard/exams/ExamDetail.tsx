@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Exam {
@@ -36,7 +36,8 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
     window.location.href = '/dashboard/exams';
   };
 
-  const fetchExam = async () => {
+  // Wrap fetchExam in useCallback to avoid unnecessary recreations
+  const fetchExam = useCallback(async () => {
     if (!examId) return;
     try {
       const response = await fetch(`/api/auth/exams/${examId}`);
@@ -52,11 +53,11 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
       console.error('Error fetching exam:', error);
     }
     setIsLoading(false);
-  };
+  }, [examId]); // Add examId as a dependency
 
   useEffect(() => {
     fetchExam();
-  }, [examId]);
+  }, [fetchExam]); // Add fetchExam as a dependency
 
   const updateExam = async (updatedData: Partial<Exam>) => {
     if (!examId || !exam) return false;

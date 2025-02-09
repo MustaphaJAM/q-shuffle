@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -26,11 +26,8 @@ export const ExamComponent: React.FC<ExamComponentProps> = ({
   const [examCompleted, setExamCompleted] = useState(false);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
 
-  useEffect(() => {
-    fetchQuestions();
-  }, []);
-
-  const fetchQuestions = async () => {
+  // Wrap fetchQuestions in useCallback to avoid unnecessary recreations
+  const fetchQuestions = useCallback(async () => {
     try {
       const response = await fetch(`/api/exams/${publicLink}/questions?sessionId=${sessionId}`);
       const data = await response.json();
@@ -43,7 +40,11 @@ export const ExamComponent: React.FC<ExamComponentProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionId, publicLink, allowNavigation]); // Add dependencies
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]); // Add fetchQuestions as a dependency
 
   const handleAnswer = async (answer: Answer) => {
     const updatedAnswers = { ...answers, [answer.questionId]: answer };

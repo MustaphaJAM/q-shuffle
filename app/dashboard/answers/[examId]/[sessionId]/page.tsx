@@ -30,8 +30,8 @@ interface SessionDetails {
   completed: boolean;
   score: number | null;
   answers: Answer[];
-  exam: {
-    questions: Question[];
+  exam?: {
+    questions?: Question[];
   };
 }
 
@@ -59,7 +59,15 @@ export default function SessionDetails({
     };
 
     fetchDetails();
-  }, [params.sessionId]);
+  }, [params.examId, params.sessionId]);
+
+  const formatDate = (dateString: string | null) =>
+    dateString
+      ? new Intl.DateTimeFormat('en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        }).format(new Date(dateString))
+      : 'In Progress';
 
   if (loading) {
     return (
@@ -102,21 +110,19 @@ export default function SessionDetails({
             <h2 className="text-xl font-semibold">Session Details</h2>
             <div>
               <p className="text-gray-600">Start Time</p>
-              <p className="font-medium">{new Date(details.startTime).toLocaleString()}</p>
+              <p className="font-medium">{formatDate(details.startTime)}</p>
             </div>
             <div>
               <p className="text-gray-600">End Time</p>
-              <p className="font-medium">
-                {details.endTime ? new Date(details.endTime).toLocaleString() : 'In Progress'}
-              </p>
+              <p className="font-medium">{formatDate(details.endTime)}</p>
             </div>
           </div>
 
           <div className="flex flex-col items-center justify-center">
             <div className="h-32 w-32">
               <CircularProgressbar
-                value={details.score || 0}
-                text={`${details.score?.toFixed(1) || 0}%`}
+                value={details.score ?? 0}
+                text={`${details.score?.toFixed(1) ?? '0'}%`}
                 strokeWidth={8}
               />
             </div>
@@ -131,21 +137,23 @@ export default function SessionDetails({
         <h2 className="mb-4 text-xl font-semibold">Answers</h2>
         <div className="space-y-6">
           {details.answers.map((answer, index) => {
-            const question = details.exam.questions.find((q) => q.id === answer.questionId);
+            const question = details.exam?.questions?.find((q) => q.id === answer.questionId);
             if (!question) return null;
 
             return (
               <div key={answer.id} className="rounded-lg border p-4">
                 <div className="mb-4">
                   <h3 className="font-medium">Question {index + 1}</h3>
-                  <p className="mt-2 text-gray-700">{question.text}</p>
+                  <blockquote className="mt-2 border-l-4 border-gray-300 pl-4 text-gray-700">
+                    {question.text}
+                  </blockquote>
                 </div>
 
                 <div className="grid gap-2">
                   {question.options.map((option, optIndex) => (
                     <div
                       key={optIndex}
-                      className={`rounded-lg p-3 ${
+                      className={`rounded-lg border p-3 ${
                         answer.selectedOptions.includes(optIndex)
                           ? question.correctAnswers.includes(optIndex)
                             ? 'border-green-500 bg-green-100'
@@ -153,7 +161,7 @@ export default function SessionDetails({
                           : question.correctAnswers.includes(optIndex)
                             ? 'border-blue-500 bg-blue-50'
                             : 'bg-gray-50'
-                      } border`}
+                      }`}
                     >
                       {option}
                     </div>

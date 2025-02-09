@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Plus, Trash, Image as ImageIcon, Check, X, Edit } from 'lucide-react';
 import QuestionForm from './QuestionForm';
 
@@ -23,7 +24,7 @@ const QuestionList = ({ examId }: { examId: string }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string>('');
 
-  const fetchExam = async () => {
+  const fetchExam = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/auth/exams/${examId}`);
@@ -37,7 +38,7 @@ const QuestionList = ({ examId }: { examId: string }) => {
       console.error('Error fetching exam:', error);
     }
     setIsLoading(false);
-  };
+  }, [examId]);
 
   const deleteQuestion = async (id: string) => {
     try {
@@ -176,7 +177,7 @@ const QuestionList = ({ examId }: { examId: string }) => {
 
   useEffect(() => {
     fetchExam();
-  }, [examId]);
+  }, [fetchExam]);
 
   if (isLoading) {
     return (
@@ -263,9 +264,11 @@ const QuestionList = ({ examId }: { examId: string }) => {
                       )}
                     </div>
                     {editingQuestion?.image && (
-                      <img
+                      <Image
                         src={editingQuestion.image}
                         alt="Question"
+                        width={200}
+                        height={200}
                         className="max-h-40 rounded-md object-cover"
                       />
                     )}
@@ -365,7 +368,7 @@ const QuestionList = ({ examId }: { examId: string }) => {
                         prev
                           ? {
                               ...prev,
-                              time: Math.max(1, Number(e.target.value)),
+                              timeLimit: Math.max(1, Number(e.target.value)),
                             }
                           : null,
                       )
@@ -395,9 +398,11 @@ const QuestionList = ({ examId }: { examId: string }) => {
                 <div className="flex-1">
                   <h3 className="mb-2 text-lg font-semibold">{question.text}</h3>
                   {question.image && (
-                    <img
+                    <Image
                       src={question.image}
                       alt="Question"
+                      width={200}
+                      height={200}
                       className="mb-4 max-h-40 rounded-md object-cover"
                     />
                   )}

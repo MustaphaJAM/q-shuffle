@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Timer } from 'lucide-react';
 import { Question as QuestionType, Answer } from '@/types/exam';
+import Image from 'next/image';
 
 interface QuestionProps {
   question: QuestionType;
@@ -70,10 +71,12 @@ export const Question: React.FC<QuestionProps> = ({
       </CardHeader>
       <CardContent>
         {question.image && (
-          <img
+          <Image
             src={question.image}
             alt="Question illustration"
             className="mb-4 h-auto max-w-full rounded-lg"
+            width={500} // Optional: You can specify width and height if needed
+            height={300} // Optional: Adjust according to the aspect ratio
           />
         )}
         <RadioGroup className="space-y-2">

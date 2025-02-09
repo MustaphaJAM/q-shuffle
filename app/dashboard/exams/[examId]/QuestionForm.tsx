@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image'; // Import next/image
 import { X, Image as ImageIcon } from 'lucide-react';
 
 interface Question {
@@ -187,7 +188,6 @@ const QuestionForm = ({ examId, onClose, onSuccess }: QuestionFormProps) => {
               disabled={isSubmitting}
             />
           </div>
-
           <div>
             <label className="mb-1 block font-medium">Image (optional)</label>
             <div className="flex flex-col gap-4">
@@ -219,17 +219,18 @@ const QuestionForm = ({ examId, onClose, onSuccess }: QuestionFormProps) => {
               </div>
               {question.image && (
                 <div className="relative w-fit">
-                  <img
+                  <Image
                     src={question.image}
                     alt="Preview"
-                    className="max-h-40 rounded-md object-contain"
+                    width={160}
+                    height={160}
+                    className="rounded-md object-contain"
+                    unoptimized // Needed for base64 previews
                   />
                 </div>
               )}
             </div>
-          </div>
-
-          <div>
+          </div><div>
             <label className="mb-1 block font-medium">Options</label>
             {question.options.map((option, index) => (
               <div key={index} className="mb-2 flex items-center gap-2">

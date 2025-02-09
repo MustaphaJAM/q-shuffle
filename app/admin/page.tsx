@@ -1,7 +1,7 @@
 'use client';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
-
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import useAdminRoute from './hooks/useAdminRoute';
 import Loading from '@/components/ui/Loading';
@@ -22,7 +22,7 @@ const AdminPage = () => {
       <nav className="border-gray-200 bg-white dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <div className="ml-4 flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="images/logo.png" className="w-10" alt="logo" />
+            <Image src="/images/logo.png" width={40} height={40} alt="logo" />
           </div>
           <div className="flex items-center space-x-3 md:order-2 md:space-x-0 rtl:space-x-reverse">
             <Button onClick={() => signOut()}>Logout</Button>
@@ -34,7 +34,7 @@ const AdminPage = () => {
             <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 rtl:space-x-reverse dark:border-gray-700 dark:bg-gray-800 md:dark:bg-gray-900">
               <li>
                 <Link
-                  className="block rounded bg-blue-700 px-3 py-2 text-white md:bg-transparent md:p-0 md:text-blue-700 md:dark:text-blue-500"
+                  className="block rounded px-3 py-2 text-white md:p-0 md:text-blue-700 md:dark:text-blue-500"
                   href="/"
                 >
                   Home
