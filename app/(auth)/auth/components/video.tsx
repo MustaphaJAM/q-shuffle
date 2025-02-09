@@ -10,14 +10,14 @@ const Video = () => {
           by mustapha jamaaoui
         </a>
       </span>
-      <video
+      {/* <video
         className="h-full w-full object-cover"
         loop
         autoPlay
         muted
         src="video/video.mp4"
         poster="images/back.jpg"
-      ></video>
+      ></video> */}
     </div>
   );
 };
