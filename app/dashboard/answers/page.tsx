@@ -4,97 +4,116 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface ExamWithSessions {
-    id: string;
-    name: string;
-    description: string;
-    published: boolean;
-    sessionCount: number;
+  id: string;
+  name: string;
+  description: string;
+  published: boolean;
+  sessionCount: number;
 }
 
-export default function answers() {
-    const [exams, setExams] = useState<ExamWithSessions[]>([]);
-    const [visibleCount, setVisibleCount] = useState(5);
-    const [loading, setLoading] = useState(true);
+interface ExamCardProps {
+  exam: ExamWithSessions;
+}
 
-    useEffect(() => {
-        const fetchExams = async () => {
-            try {
-                const response = await fetch('/api/auth/exam-sessions');
-                const data = await response.json();
-                setExams(data);
-            } catch (error) {
-                console.error('Error:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchExams();
-    }, []);
-
-    if (loading) {
-        return <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>;
-    }
-
-    return (
-        <div className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto">
-                <div className="space-y-3 mb-4">
-                    {exams.slice(0, visibleCount).map((exam) => (
-                        <div key={exam.id} className="bg-white rounded-lg shadow p-4">
-                            <div className="flex justify-between items-start gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg font-semibold text-gray-800 truncate">
-                                        {exam.name}
-                                    </h3>
-                                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                                        {exam.description}
-                                    </p>
-                                    <div className="flex gap-2 mt-2">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            ${exam.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                            {exam.published ? 'Published' : 'Draft'}
-                                        </span>
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {exam.sessionCount} sessions
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Link
-                                        href={`/dashboard/answers/${exam.id}`}
-                                        className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition"
-                                    >
-                                        View Sessions
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {exams.length > 5 && (
-                <div className="sticky bottom-0 p-3 bg-gray-50 border-t">
-                    {visibleCount < exams.length ? (
-                        <button
-                            onClick={() => setVisibleCount(prev => Math.min(prev + 5, exams.length))}
-                            className="w-full px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm rounded shadow-sm hover:bg-gray-50 transition"
-                        >
-                            Show More
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => setVisibleCount(5)}
-                            className="w-full px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm rounded shadow-sm hover:bg-gray-50 transition"
-                        >
-                            Show Less
-                        </button>
-                    )}
-                </div>
-            )}
+const ExamCard = ({ exam }: ExamCardProps) => (
+  <div className="rounded-lg bg-white p-4 shadow">
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-lg font-semibold text-gray-800">{exam.name}</h3>
+        <p className="mt-1 line-clamp-2 text-sm text-gray-600">{exam.description}</p>
+        <div className="mt-2 flex gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              exam.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+            }`}
+          >
+            {exam.published ? 'Published' : 'Draft'}
+          </span>
+          <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+            {exam.sessionCount} sessions
+          </span>
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/dashboard/answers/${exam.id}`}
+          className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white transition hover:bg-blue-700"
+        >
+          View Sessions
+        </Link>
+      </div>
+    </div>
+  </div>
+);
+
+export default function Answers() {
+  const [exams, setExams] = useState<ExamWithSessions[]>([]);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchExams = async () => {
+      try {
+        const response = await fetch('/api/auth/exam-sessions');
+        if (!response.ok) {
+          throw new Error('Failed to fetch exams');
+        }
+        const data = await response.json();
+        setExams(data);
+        setError(null);
+      } catch (error) {
+        console.error('Error:', error);
+        setError('Failed to load exams. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExams();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+      </div>
     );
+  }
+
+  if (error) {
+    return <div className="flex h-64 items-center justify-center text-red-600">{error}</div>;
+  }
+
+  return (
+    <div className="flex flex-1 flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="mb-4 space-y-3">
+          {exams.slice(0, visibleCount).map((exam) => (
+            <ExamCard key={exam.id} exam={exam} />
+          ))}
+        </div>
+      </div>
+
+      {exams.length > 5 && (
+        <div className="sticky bottom-0 border-t bg-gray-50 p-3">
+          {visibleCount < exams.length ? (
+            <button
+              onClick={() => setVisibleCount((prev) => Math.min(prev + 5, exams.length))}
+              className="w-full rounded border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm transition hover:bg-gray-50"
+            >
+              Show More
+            </button>
+          ) : (
+            <button
+              onClick={() => setVisibleCount(5)}
+              className="w-full rounded border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm transition hover:bg-gray-50"
+            >
+              Show Less
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

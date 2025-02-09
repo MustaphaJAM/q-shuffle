@@ -39,8 +39,8 @@ export default function Home() {
             <div className="mx-auto max-w-3xl">
               <p className="mb-8 text-xl text-gray-600" data-aos="zoom-y-out" data-aos-delay="150">
                 Q-Shuffle is the easiest way for teachers to create, shuffle, and publish custom
-                question sheets. Whether you're creating tests, generating PDFs, or sharing links with
-                students, we've made it simple, secure, and effective.
+                question sheets. Whether you&apos;re creating tests, generating PDFs, or sharing
+                links with students, we&apos;ve made it simple, secure, and effective.
               </p>
               <div
                 className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center"
@@ -63,6 +63,5 @@ export default function Home() {
         </div>
       </div>
     </section>
-
   );
 }

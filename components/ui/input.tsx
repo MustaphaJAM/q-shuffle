@@ -32,28 +32,7 @@ const Input: React.FC<InputProps> = ({
         disabled={disabled}
         {...register(id, { ...validation })}
         className={clsx(
-          `
-          text-md 
-          peer 
-          block 
-          w-full 
-          appearance-none 
-          rounded-xl 
-          bg-transparent  
-          px-6 
-          pb-1 
-          pt-6 
-          text-gray-900
-          placeholder-gray-600
-          shadow-sm  
-          ring-1 
-          ring-inset
-          ring-gray-300 
-          transition
-          focus:ring-2
-          focus:ring-inset
-          focus:ring-sky-600
-          `,
+          `text-md peer block w-full appearance-none rounded-xl bg-transparent px-6 pb-1 pt-6 text-gray-900 placeholder-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 transition focus:ring-2 focus:ring-inset focus:ring-sky-600`,
           errors[id] && 'ring-rose-500',
           disabled && 'cursor-default disabled:bg-gray-100',
         )}
@@ -61,18 +40,7 @@ const Input: React.FC<InputProps> = ({
       />
       <label
         htmlFor={id}
-        className="
-        text-md
-        text-zinc-150 
-        peer-placeholder-shown:scale:100 
-        absolute  
-        left-6 top-4 z-10 origin-[0] 
-        -translate-y-3 scale-75 
-        transform 
-        duration-150 
-        peer-placeholder-shown:translate-y-0 
-        peer-focus:-translate-y-3
-        peer-focus:scale-75"
+        className="text-md text-zinc-150 peer-placeholder-shown:scale:100 absolute left-6 top-4 z-10 origin-[0] -translate-y-3 scale-75 transform duration-150 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-3 peer-focus:scale-75"
       >
         {label}
       </label>

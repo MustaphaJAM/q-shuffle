@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Plus, Trash, Image as ImageIcon, Check, X, Edit } from "lucide-react";
-import QuestionForm from "./QuestionForm";
+import { useState, useEffect } from 'react';
+import { Plus, Trash, Image as ImageIcon, Check, X, Edit } from 'lucide-react';
+import QuestionForm from './QuestionForm';
 
 interface Question {
   id: string;
@@ -21,7 +21,7 @@ const QuestionList = ({ examId }: { examId: string }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
 
   const fetchExam = async () => {
     setIsLoading(true);
@@ -31,10 +31,10 @@ const QuestionList = ({ examId }: { examId: string }) => {
         const data = await response.json();
         setQuestions(data.questions || []);
       } else {
-        console.error("Failed to fetch exam:", response.statusText);
+        console.error('Failed to fetch exam:', response.statusText);
       }
     } catch (error) {
-      console.error("Error fetching exam:", error);
+      console.error('Error fetching exam:', error);
     }
     setIsLoading(false);
   };
@@ -42,17 +42,15 @@ const QuestionList = ({ examId }: { examId: string }) => {
   const deleteQuestion = async (id: string) => {
     try {
       const response = await fetch(`/api/auth/exams/${examId}/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (response.ok) {
-        setQuestions((prevQuestions) =>
-          prevQuestions.filter((q) => q.id !== id)
-        );
+        setQuestions((prevQuestions) => prevQuestions.filter((q) => q.id !== id));
       } else {
-        console.error("Failed to delete question:", response.statusText);
+        console.error('Failed to delete question:', response.statusText);
       }
     } catch (error) {
-      console.error("Error deleting question:", error);
+      console.error('Error deleting question:', error);
     }
   };
 
@@ -65,14 +63,14 @@ const QuestionList = ({ examId }: { examId: string }) => {
     setEditingId(null);
     setEditingQuestion(null);
     setImageFile(null);
-    setError("");
+    setError('');
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setError("Image must be less than 5MB");
+        setError('Image must be less than 5MB');
         return;
       }
       setImageFile(file);
@@ -91,22 +89,22 @@ const QuestionList = ({ examId }: { examId: string }) => {
 
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
 
     try {
-      const response = await fetch("/api/auth/upload", {
-        method: "POST",
+      const response = await fetch('/api/auth/upload', {
+        method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to upload image");
+        throw new Error('Failed to upload image');
       }
 
       const data = await response.json();
       return data.url;
     } catch (error) {
-      throw new Error("Error uploading image");
+      throw new Error('Error uploading image');
     }
   };
 
@@ -119,22 +117,22 @@ const QuestionList = ({ examId }: { examId: string }) => {
         imageUrl = await uploadImage(imageFile);
       }
 
-      const filteredOptions = editingQuestion.options.filter(opt => opt.trim() !== "");
+      const filteredOptions = editingQuestion.options.filter((opt) => opt.trim() !== '');
       if (filteredOptions.length < 2) {
-        setError("At least two non-empty options are required");
+        setError('At least two non-empty options are required');
         return;
       }
 
       const adjustedCorrectAnswers = editingQuestion.correctAnswers
-        .filter(index => index < filteredOptions.length)
-        .map(index => {
+        .filter((index) => index < filteredOptions.length)
+        .map((index) => {
           const option = editingQuestion.options[index];
           return filteredOptions.indexOf(option);
         })
-        .filter(index => index !== -1);
+        .filter((index) => index !== -1);
 
       if (adjustedCorrectAnswers.length === 0) {
-        setError("Please select at least one correct answer");
+        setError('Please select at least one correct answer');
         return;
       }
 
@@ -143,28 +141,26 @@ const QuestionList = ({ examId }: { examId: string }) => {
         options: filteredOptions,
         correctAnswers: adjustedCorrectAnswers,
         timeLimit: editingQuestion.timeLimit,
-        image: imageUrl
+        image: imageUrl,
       };
 
       const response = await fetch(`/api/auth/exams/${examId}/${editingQuestion.id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(questionData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update question");
+        throw new Error('Failed to update question');
       }
 
       const updatedQuestion = await response.json();
-      setQuestions(questions.map(q =>
-        q.id === editingQuestion.id ? updatedQuestion : q
-      ));
+      setQuestions(questions.map((q) => (q.id === editingQuestion.id ? updatedQuestion : q)));
       cancelEditing();
     } catch (error) {
-      setError("Failed to save question");
+      setError('Failed to save question');
     }
   };
 
@@ -184,19 +180,19 @@ const QuestionList = ({ examId }: { examId: string }) => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex min-h-[200px] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Questions</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           <Plus size={20} />
           Add Question
@@ -204,7 +200,7 @@ const QuestionList = ({ examId }: { examId: string }) => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <QuestionForm
             examId={examId}
             onClose={() => setShowForm(false)}
@@ -216,32 +212,34 @@ const QuestionList = ({ examId }: { examId: string }) => {
         </div>
       )}
 
-      {error && (
-        <div className="p-3 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-md bg-red-100 p-3 text-red-700">{error}</div>}
 
       <ul className="space-y-4">
         {questions.map((question) => (
-          <li key={question.id} className="bg-white shadow-md rounded-lg p-4">
+          <li key={question.id} className="rounded-lg bg-white p-4 shadow-md">
             {editingId === question.id ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-medium">Question Text</label>
+                  <label className="mb-1 block font-medium">Question Text</label>
                   <textarea
                     value={editingQuestion?.text}
-                    onChange={(e) => setEditingQuestion(prev => prev ? {
-                      ...prev,
-                      text: e.target.value
-                    } : null)}
-                    className="w-full p-2 border rounded-md"
+                    onChange={(e) =>
+                      setEditingQuestion((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              text: e.target.value,
+                            }
+                          : null,
+                      )
+                    }
+                    className="w-full rounded-md border p-2"
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-1 font-medium">Image</label>
+                  <label className="mb-1 block font-medium">Image</label>
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-4">
                       <input
@@ -253,16 +251,13 @@ const QuestionList = ({ examId }: { examId: string }) => {
                       />
                       <label
                         htmlFor={`image-upload-${question.id}`}
-                        className="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-gray-50"
+                        className="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2 hover:bg-gray-50"
                       >
                         <ImageIcon size={20} />
                         Upload Image
                       </label>
                       {editingQuestion?.image && (
-                        <button
-                          onClick={removeImage}
-                          className="text-red-500 hover:text-red-700"
-                        >
+                        <button onClick={removeImage} className="text-red-500 hover:text-red-700">
                           <X size={20} />
                         </button>
                       )}
@@ -271,16 +266,16 @@ const QuestionList = ({ examId }: { examId: string }) => {
                       <img
                         src={editingQuestion.image}
                         alt="Question"
-                        className="max-h-40 object-cover rounded-md"
+                        className="max-h-40 rounded-md object-cover"
                       />
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block mb-1 font-medium">Options</label>
+                  <label className="mb-1 block font-medium">Options</label>
                   {editingQuestion?.options.map((option, index) => (
-                    <div key={index} className="flex items-center gap-2 mb-2">
+                    <div key={index} className="mb-2 flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={editingQuestion.correctAnswers.includes(index)}
@@ -288,12 +283,16 @@ const QuestionList = ({ examId }: { examId: string }) => {
                           const newCorrectAnswers = e.target.checked
                             ? [...editingQuestion.correctAnswers, index]
                             : editingQuestion.correctAnswers.filter((i) => i !== index);
-                          setEditingQuestion(prev => prev ? {
-                            ...prev,
-                            correctAnswers: newCorrectAnswers
-                          } : null);
+                          setEditingQuestion((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  correctAnswers: newCorrectAnswers,
+                                }
+                              : null,
+                          );
                         }}
-                        className="w-4 h-4"
+                        className="h-4 w-4"
                       />
                       <input
                         type="text"
@@ -301,28 +300,36 @@ const QuestionList = ({ examId }: { examId: string }) => {
                         onChange={(e) => {
                           const newOptions = [...editingQuestion.options];
                           newOptions[index] = e.target.value;
-                          setEditingQuestion(prev => prev ? {
-                            ...prev,
-                            options: newOptions
-                          } : null);
+                          setEditingQuestion((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  options: newOptions,
+                                }
+                              : null,
+                          );
                         }}
-                        className="flex-1 p-2 border rounded-md"
+                        className="flex-1 rounded-md border p-2"
                         placeholder={`Option ${index + 1}`}
                       />
                       {editingQuestion.options.length > 2 && (
                         <button
                           onClick={() => {
                             const newOptions = editingQuestion.options.filter(
-                              (_, i) => i !== index
+                              (_, i) => i !== index,
                             );
                             const newCorrectAnswers = editingQuestion.correctAnswers
                               .filter((i) => i !== index)
                               .map((i) => (i > index ? i - 1 : i));
-                            setEditingQuestion(prev => prev ? {
-                              ...prev,
-                              options: newOptions,
-                              correctAnswers: newCorrectAnswers
-                            } : null);
+                            setEditingQuestion((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    options: newOptions,
+                                    correctAnswers: newCorrectAnswers,
+                                  }
+                                : null,
+                            );
                           }}
                           className="text-red-500"
                         >
@@ -332,26 +339,38 @@ const QuestionList = ({ examId }: { examId: string }) => {
                     </div>
                   ))}
                   <button
-                    onClick={() => setEditingQuestion(prev => prev ? {
-                      ...prev,
-                      options: [...prev.options, ""]
-                    } : null)}
-                    className="text-blue-500 text-sm"
+                    onClick={() =>
+                      setEditingQuestion((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              options: [...prev.options, ''],
+                            }
+                          : null,
+                      )
+                    }
+                    className="text-sm text-blue-500"
                   >
                     + Add Option
                   </button>
                 </div>
 
                 <div>
-                  <label className="block mb-1 font-medium">Time Limit (seconds)</label>
+                  <label className="mb-1 block font-medium">Time Limit (seconds)</label>
                   <input
                     type="number"
                     value={editingQuestion?.timeLimit}
-                    onChange={(e) => setEditingQuestion(prev => prev ? {
-                      ...prev,
-                      time: Math.max(1, Number(e.target.value))
-                    } : null)}
-                    className="w-full p-2 border rounded-md"
+                    onChange={(e) =>
+                      setEditingQuestion((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              time: Math.max(1, Number(e.target.value)),
+                            }
+                          : null,
+                      )
+                    }
+                    className="w-full rounded-md border p-2"
                     min={1}
                   />
                 </div>
@@ -359,37 +378,36 @@ const QuestionList = ({ examId }: { examId: string }) => {
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={cancelEditing}
-                    className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                    className="rounded-md border px-4 py-2 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={saveQuestion}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                   >
                     Save Changes
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex justify-between items-start">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">{question.text}</h3>
+                  <h3 className="mb-2 text-lg font-semibold">{question.text}</h3>
                   {question.image && (
                     <img
                       src={question.image}
                       alt="Question"
-                      className="max-h-40 object-cover rounded-md mb-4"
+                      className="mb-4 max-h-40 rounded-md object-cover"
                     />
                   )}
                   <div className="space-y-2">
                     {question.options.map((option, index) => (
                       <div
                         key={index}
-                        className={`p-2 rounded-md ${question.correctAnswers.includes(index)
-                          ? "bg-green-100"
-                          : "bg-gray-100"
-                          }`}
+                        className={`rounded-md p-2 ${
+                          question.correctAnswers.includes(index) ? 'bg-green-100' : 'bg-gray-100'
+                        }`}
                       >
                         {option}
                       </div>
@@ -402,13 +420,13 @@ const QuestionList = ({ examId }: { examId: string }) => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => startEditing(question)}
-                    className="text-blue-500 hover:text-blue-700 p-2"
+                    className="p-2 text-blue-500 hover:text-blue-700"
                   >
                     <Edit size={20} />
                   </button>
                   <button
                     onClick={() => deleteQuestion(question.id)}
-                    className="text-red-500 hover:text-red-700 p-2"
+                    className="p-2 text-red-500 hover:text-red-700"
                   >
                     <Trash size={20} />
                   </button>

@@ -5,12 +5,7 @@ const Video = () => {
     <div hidden className="fixed inset-0 w-6/12 lg:block">
       <span className="absolute bottom-6 left-6 z-10 text-sm text-white">
         ©{new Date().getFullYear()} Created with ❤️
-        <a
-          href=""
-          target="blank"
-          title=""
-          className="cursor-pointer"
-        >
+        <a href="" target="blank" title="" className="cursor-pointer">
           {' '}
           by mustapha jamaaoui
         </a>

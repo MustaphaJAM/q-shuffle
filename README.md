@@ -6,22 +6,25 @@
 
 - **User Roles**
   - Role-based access control with `admin` and `user` permissions.
-  
 - **Exam Management**
+
   - Create, update, and manage exams with configurable settings like duration, pass percentage, and navigation controls.
   - Publish exams and generate shareable public links.
 
 - **Question Types(in progress)**
+
   - Multiple-choice questions (MCQ).
   - True/False questions.
   - Short answer questions.
 
 - **Student Exam Sessions**
+
   - Track individual student attempts with start and end times.
   - Automatically calculate scores and completion status.
   - Save detailed answers and time spent per question.
 
 - **Dynamic Question Shuffling(in progress)**
+
   - Ensure unique test versions by shuffling question orders dynamically.
 
 - **Result Visibility**
