@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -50,8 +51,8 @@ export default function Home() {
               data-aos-delay="150"
             >
               Q-Shuffle is the ultimate tool for educators to effortlessly create, shuffle, and
-              distribute custom question sheets. Whether you're crafting exams, generating PDFs, or
-              sharing links with students, we've streamlined the process to be simple, secure, and
+              distribute custom question sheets. Whether you&apos;re crafting exams, generating PDFs, or
+              sharing links with students, we&apos;ve streamlined the process to be simple, secure, and
               effective.
             </p>
 
