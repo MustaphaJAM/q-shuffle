@@ -219,9 +219,8 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
           <div className="flex items-center gap-2">
             <button
               onClick={togglePublished}
-              className={`rounded px-3 py-1 text-sm ${
-                exam.published ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'
-              }`}
+              className={`rounded px-3 py-1 text-sm ${exam.published ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'
+                }`}
             >
               {exam.published ? 'Published' : 'Draft'}
             </button>
@@ -335,11 +334,10 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
               </div>
               <button
                 onClick={toggleNavigation}
-                className={`rounded px-4 py-2 transition-colors ${
-                  exam.allowNavigation
+                className={`rounded px-4 py-2 transition-colors ${exam.allowNavigation
                     ? 'bg-blue-500 text-white hover:bg-blue-600'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 {exam.allowNavigation ? 'Free Navigation' : 'Linear Only'}
               </button>
@@ -352,11 +350,10 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
               </div>
               <button
                 onClick={toggleShowResults}
-                className={`rounded px-4 py-2 transition-colors ${
-                  exam.showResults
+                className={`rounded px-4 py-2 transition-colors ${exam.showResults
                     ? 'bg-blue-500 text-white hover:bg-blue-600'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 {exam.showResults ? 'Show Results' : 'Hide Results'}
               </button>
@@ -374,11 +371,10 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
               </div>
               <button
                 onClick={togglePublicAccess}
-                className={`rounded px-4 py-2 transition-colors ${
-                  exam.publicActive
+                className={`rounded px-4 py-2 transition-colors ${exam.publicActive
                     ? 'bg-blue-500 text-white hover:bg-blue-600'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 {exam.publicActive ? 'Public' : 'Private'}
               </button>
@@ -397,7 +393,7 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
                   <button
                     onClick={() =>
                       navigator.clipboard.writeText(
-                        `http://localhost:3000/exams/${exam.publicLink || ''}`,
+                        `https://q-shuffle.vercel.app/exams/${exam.publicLink || ''}`,
                       )
                     }
                     className="rounded bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300"
