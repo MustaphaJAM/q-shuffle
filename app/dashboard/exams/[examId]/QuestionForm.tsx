@@ -230,7 +230,8 @@ const QuestionForm = ({ examId, onClose, onSuccess }: QuestionFormProps) => {
                 </div>
               )}
             </div>
-          </div><div>
+          </div>
+          <div>
             <label className="mb-1 block font-medium">Options</label>
             {question.options.map((option, index) => (
               <div key={index} className="mb-2 flex items-center gap-2">
