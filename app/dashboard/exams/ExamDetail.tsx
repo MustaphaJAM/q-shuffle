@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
+import { CustomInput } from '@/components/ui/customInput';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -150,7 +150,7 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
                   Time Limit (minutes)
                 </label>
                 <div className="flex items-center space-x-2">
-                  <Input
+                  <CustomInput
                     id="duration"
                     type="number"
                     value={tempDuration || ''}
@@ -173,7 +173,7 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
                   Pass Percentage
                 </label>
                 <div className="flex items-center space-x-2">
-                  <Input
+                  <CustomInput
                     id="passPercent"
                     type="number"
                     value={tempPassPercent || ''}
@@ -257,7 +257,7 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
                     Public Link
                   </label>
                   <div className="flex space-x-2">
-                    <Input
+                    <CustomInput
                       value={`https://q-shuffle.vercel.app/exams/${exam.publicLink}`}
                       readOnly
                     />
