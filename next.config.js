@@ -2,8 +2,8 @@
 const nextConfig = {
   experimental: {},
   images: {
-    domains: ['res.cloudinary.com']
-  }
+    domains: ['res.cloudinary.com'],
+  },
 };
 
 module.exports = nextConfig;
