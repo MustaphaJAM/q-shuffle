@@ -1,5 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Settings,
+  Edit,
+  Trash2,
+  Clock,
+  PercentIcon,
+  Globe,
+  Navigation,
+  Eye,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { CustomInput } from '@/components/ui/customInput';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Exam {
   id: string;
@@ -26,17 +49,14 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [tempDuration, setTempDuration] = useState<number | undefined>();
   const [tempPassPercent, setTempPassPercent] = useState<number | undefined>();
-  const [showDurationUpdate, setShowDurationUpdate] = useState(false);
-  const [showTimeLimitUpdate, setShowTimeLimitUpdate] = useState(false);
-  const [showPassPercentUpdate, setShowPassPercentUpdate] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const router = useRouter();
 
   const navigateToExams = () => {
     window.location.href = '/dashboard/exams';
   };
 
-  // Wrap fetchExam in useCallback to avoid unnecessary recreations
   const fetchExam = useCallback(async () => {
     if (!examId) return;
     try {
@@ -53,11 +73,11 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
       console.error('Error fetching exam:', error);
     }
     setIsLoading(false);
-  }, [examId]); // Add examId as a dependency
+  }, [examId]);
 
   useEffect(() => {
     fetchExam();
-  }, [fetchExam]); // Add fetchExam as a dependency
+  }, [fetchExam]);
 
   const updateExam = async (updatedData: Partial<Exam>) => {
     if (!examId || !exam) return false;
@@ -96,76 +116,254 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
     }
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (exam) {
-      setExam({ ...exam, name: e.target.value });
-    }
-  };
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (exam) {
-      setExam({ ...exam, description: e.target.value });
-    }
-  };
-
-  const saveName = async () => {
-    if (exam) {
-      const success = await updateExam({ name: exam.name });
-      if (success) setEditingName(false);
-    }
-  };
-
-  const saveDescription = async () => {
-    if (exam) {
-      const success = await updateExam({ description: exam.description });
-      if (success) setEditingDescription(false);
-    }
-  };
-
-  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempDuration(Number(e.target.value));
-    setShowDurationUpdate(true);
-  };
-
-  const handlePassPercentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempPassPercent(Number(e.target.value));
-    setShowPassPercentUpdate(true);
-  };
-
-  const updateDuration = async () => {
-    const success = await updateExam({ duration: tempDuration });
-    if (success) {
-      setShowDurationUpdate(false);
-    }
-  };
-
-  const updatePassPercent = async () => {
-    const success = await updateExam({ passPercent: tempPassPercent });
-    if (success) {
-      setShowPassPercentUpdate(false);
-    }
-  };
-
-  // Toggle functions for all settings
-  const togglePublished = async () => {
+  const toggleSetting = async (settingKey: keyof Exam) => {
     if (!exam) return;
-    await updateExam({ published: !exam.published });
+    const currentValue = exam[settingKey];
+    await updateExam({ [settingKey]: !currentValue });
   };
 
-  const toggleNavigation = async () => {
-    if (!exam) return;
-    await updateExam({ allowNavigation: !exam.allowNavigation });
-  };
+  const renderSettingsDialog = () => (
+    <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+      <DialogTrigger asChild>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="rounded-full p-2 hover:bg-gray-100"
+        >
+          <Settings className="h-6 w-6 text-gray-600" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Exam Settings</DialogTitle>
+        </DialogHeader>
 
-  const togglePublicAccess = async () => {
-    if (!exam) return;
-    await updateExam({ publicActive: !exam.publicActive });
-  };
+        <div className="grid gap-4 py-4">
+          {/* Time Settings */}
+          <div className="border-b pb-4">
+            <h3 className="mb-3 flex items-center text-lg font-semibold">
+              <Clock className="mr-2 h-5 w-5 text-gray-600" />
+              Time Settings
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="duration" className="mb-2 block text-sm font-medium text-gray-700">
+                  Time Limit (minutes)
+                </label>
+                <div className="flex items-center space-x-2">
+                  <CustomInput
+                    id="duration"
+                    type="number"
+                    value={tempDuration || ''}
+                    onChange={(e) => {
+                      setTempDuration(Number(e.target.value));
+                    }}
+                    className="max-w-[200px]"
+                  />
+                  <Button variant="outline" onClick={() => updateExam({ duration: tempDuration })}>
+                    Update
+                  </Button>
+                </div>
+              </div>
 
-  const toggleShowResults = async () => {
-    if (!exam) return;
-    await updateExam({ showResults: !exam.showResults });
-  };
+              <div>
+                <label
+                  htmlFor="passPercent"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Pass Percentage
+                </label>
+                <div className="flex items-center space-x-2">
+                  <CustomInput
+                    id="passPercent"
+                    type="number"
+                    value={tempPassPercent || ''}
+                    onChange={(e) => {
+                      setTempPassPercent(Number(e.target.value));
+                    }}
+                    min="0"
+                    max="100"
+                    className="max-w-[200px]"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => updateExam({ passPercent: tempPassPercent })}
+                  >
+                    Update
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Behavior Settings */}
+          <div className="border-b pb-4">
+            <h3 className="mb-3 flex items-center text-lg font-semibold">
+              <Navigation className="mr-2 h-5 w-5 text-gray-600" />
+              Behavior Settings
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Navigation className="h-5 w-5 text-gray-600" />
+                  <label htmlFor="navigation" className="text-sm font-medium text-gray-700">
+                    Allow Free Navigation
+                  </label>
+                </div>
+                <Switch
+                  id="navigation"
+                  checked={exam?.allowNavigation}
+                  onCheckedChange={() => toggleSetting('allowNavigation')}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Eye className="h-5 w-5 text-gray-600" />
+                  <label htmlFor="results" className="text-sm font-medium text-gray-700">
+                    Show Results
+                  </label>
+                </div>
+                <Switch
+                  id="results"
+                  checked={exam?.showResults}
+                  onCheckedChange={() => toggleSetting('showResults')}
+                />
+              </div>
+            </div>
+          </div>
+          {/* Access Settings */}
+          <div>
+            <h3 className="mb-3 flex items-center text-lg font-semibold">
+              <Globe className="mr-2 h-5 w-5 text-gray-600" />
+              Access Settings
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Globe className="h-5 w-5 text-gray-600" />
+                  <label htmlFor="publicAccess" className="text-sm font-medium text-gray-700">
+                    Public Access
+                  </label>
+                </div>
+                <Switch
+                  id="publicAccess"
+                  checked={exam?.publicActive}
+                  onCheckedChange={() => toggleSetting('publicActive')}
+                />
+              </div>
+
+              {exam?.publicActive && exam?.publicLink && (
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Public Link
+                  </label>
+                  <div className="flex space-x-2">
+                    <CustomInput
+                      value={`https://q-shuffle.vercel.app/exams/${exam.publicLink}`}
+                      readOnly
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          `https://q-shuffle.vercel.app/exams/${exam.publicLink}`,
+                        )
+                      }
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  const renderDeleteConfirmModal = () =>
+    showDeleteConfirm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
+          <h3 className="mb-2 flex items-center text-lg font-semibold">
+            <Trash2 className="mr-2 text-red-500" />
+            Delete Exam
+          </h3>
+          <p className="mb-4 text-sm text-gray-600">
+            Are you sure you want to delete this exam? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                await deleteExam();
+                setShowDeleteConfirm(false);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+
+  const renderPublishAndReviewSection = () => (
+    <div className="flex items-center space-x-4 rounded-md border border-gray-200 bg-gray-50 p-4">
+      <TooltipProvider>
+        <div className="flex items-center space-x-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="publish"
+                  checked={exam?.published}
+                  onCheckedChange={() => toggleSetting('published')}
+                />
+                <label htmlFor="publish" className="text-sm font-medium">
+                  Publish Exam
+                </label>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {exam?.published
+                ? 'This exam is currently published and visible to students'
+                : 'Publish this exam to make it available for students'}
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        <div className="mx-3 h-6 border-l border-gray-300" />
+
+        <div className="flex items-center space-x-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/dashboard/exams/${examId}/review`)}
+                className="flex items-center space-x-2"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Review Exam</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Carefully review and validate exam questions before publishing
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        {!exam?.published && (
+          <div className="flex items-center space-x-2 text-yellow-600">
+            <AlertCircle className="h-5 w-5" />
+            <span className="text-sm">Exam is not published</span>
+          </div>
+        )}
+      </TooltipProvider>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -179,64 +377,106 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
     return (
       <div className="py-8 text-center">
         <h2 className="text-2xl font-semibold text-gray-700">Exam not found</h2>
-        <button
-          onClick={navigateToExams}
-          className="mt-4 rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
-        >
+        <Button className="mt-4" onClick={navigateToExams}>
           Return to Exam List
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-4">
-      <div className="rounded-md bg-white p-6 shadow-md">
+    <div className="mx-auto max-w-5xl p-2 sm:p-4">
+      <div className="rounded-md bg-white p-3 shadow-md sm:p-6">
         {/* Title and Quick Actions */}
-        <div className="mb-6 flex items-start justify-between">
-          <div className="flex-1">
-            {isEditingName ? (
-              <input
-                type="text"
-                value={exam.name}
-                onChange={(e) => setExam({ ...exam, name: e.target.value })}
-                onBlur={() => {
-                  updateExam({ name: exam.name });
-                  setEditingName(false);
-                }}
-                className="w-full rounded-md border border-gray-300 p-2 text-3xl font-bold"
-                autoFocus
-              />
-            ) : (
-              <h1
-                className="cursor-pointer text-3xl font-bold hover:text-gray-700"
-                onClick={() => setEditingName(true)}
+        <div className="mb-4 flex flex-col space-y-4 sm:mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex-1">
+              {isEditingName ? (
+                <input
+                  type="text"
+                  value={exam?.name}
+                  onChange={(e) => setExam(exam ? { ...exam, name: e.target.value } : null)}
+                  onBlur={() => {
+                    updateExam({ name: exam?.name });
+                    setEditingName(false);
+                  }}
+                  className="w-full rounded-md border border-gray-300 p-2 text-xl font-bold sm:text-3xl"
+                  autoFocus
+                />
+              ) : (
+                <h1
+                  className="flex cursor-pointer items-center text-xl font-bold hover:text-gray-700 sm:text-3xl"
+                  onClick={() => setEditingName(true)}
+                >
+                  {exam?.name}
+                  <Edit className="ml-2 h-4 w-4 text-gray-500 opacity-50 group-hover:opacity-100 sm:h-5 sm:w-5" />
+                </h1>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {renderSettingsDialog()}
+              <Button
+                variant="destructive"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-sm sm:text-base"
               >
-                {exam.name}
-              </h1>
-            )}
+                Delete
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={togglePublished}
-              className={`rounded px-3 py-1 text-sm ${
-                exam.published ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'
-              }`}
-            >
-              {exam.published ? 'Published' : 'Draft'}
-            </button>
-            <button
-              onClick={() => router.push(`/dashboard/exams/${examId}/review`)}
-              className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
-            >
-              Review
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600"
-            >
-              Delete
-            </button>
+
+          {/* Publish and Review Section */}
+          <div className="flex flex-col items-start gap-4 rounded-md border border-gray-200 bg-gray-50 p-3 sm:flex-row sm:items-center sm:gap-0 sm:space-x-4 sm:p-4">
+            <TooltipProvider>
+              <div className="flex items-center space-x-2">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="publish"
+                        checked={exam?.published}
+                        onCheckedChange={() => toggleSetting('published')}
+                      />
+                      <label htmlFor="publish" className="whitespace-nowrap text-sm font-medium">
+                        Publish Exam
+                      </label>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {exam?.published
+                      ? 'This exam is currently published and visible to students'
+                      : 'Publish this exam to make it available for students'}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              <div className="mx-3 hidden h-6 border-l border-gray-300 sm:block" />
+
+              <div className="flex items-center space-x-2">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      variant="outline"
+                      onClick={() => router.push(`/dashboard/exams/${examId}/review`)}
+                      className="flex items-center space-x-2 text-sm sm:text-base"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Review Exam</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Carefully review and validate exam questions before publishing
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              {!exam?.published && (
+                <div className="mt-2 flex items-center space-x-2 text-yellow-600 sm:mt-0">
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="text-xs sm:text-sm">Exam is not published</span>
+                </div>
+              )}
+            </TooltipProvider>
           </div>
         </div>
 
@@ -244,200 +484,27 @@ const ExamDetail = ({ examId }: ExamDetailProps) => {
         {isEditingDescription ? (
           <input
             type="text"
-            value={exam.description}
-            onChange={(e) => setExam({ ...exam, description: e.target.value })}
+            value={exam?.description}
+            onChange={(e) => setExam(exam ? { ...exam, description: e.target.value } : null)}
             onBlur={() => {
-              updateExam({ description: exam.description });
+              updateExam({ description: exam?.description });
               setEditingDescription(false);
             }}
-            className="mb-6 w-full rounded-md border border-gray-300 p-2 text-gray-600"
+            className="mb-4 w-full rounded-md border border-gray-300 p-2 text-sm text-gray-600 sm:mb-6 sm:text-base"
             autoFocus
           />
         ) : (
           <p
-            className="mb-6 cursor-pointer text-gray-600 hover:text-gray-800"
+            className="mb-4 flex cursor-pointer items-center text-sm text-gray-600 hover:text-gray-800 sm:mb-6 sm:text-base"
             onClick={() => setEditingDescription(true)}
           >
-            {exam.description}
+            {exam?.description || 'Add a description'}
+            <Edit className="ml-2 h-3 w-3 text-gray-500 opacity-50 group-hover:opacity-100 sm:h-4 sm:w-4" />
           </p>
         )}
 
-        {/* Settings Grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Time Settings */}
-          <div className="space-y-4 rounded-md bg-gray-50 p-4">
-            <h3 className="text-lg font-semibold">Time Settings</h3>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Time Limit (minutes)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={tempDuration || ''}
-                  onChange={handleDurationChange}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                  min="1"
-                />
-                {showDurationUpdate && (
-                  <button
-                    onClick={updateDuration}
-                    className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                  >
-                    Update
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Pass Percentage
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={tempPassPercent || ''}
-                  onChange={(e) => {
-                    setTempPassPercent(Number(e.target.value));
-                    setShowPassPercentUpdate(true);
-                  }}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                  min="0"
-                  max="100"
-                />
-                {showPassPercentUpdate && (
-                  <button
-                    onClick={async () => {
-                      await updateExam({ passPercent: tempPassPercent });
-                      setShowPassPercentUpdate(false);
-                    }}
-                    className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                  >
-                    Update
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Behavior Settings */}
-          <div className="space-y-4 rounded-md bg-gray-50 p-4">
-            <h3 className="text-lg font-semibold">Behavior Settings</h3>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Navigation</h4>
-                <p className="text-sm text-gray-600">
-                  Allow users to move between questions freely
-                </p>
-              </div>
-              <button
-                onClick={toggleNavigation}
-                className={`rounded px-4 py-2 transition-colors ${
-                  exam.allowNavigation
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
-              >
-                {exam.allowNavigation ? 'Free Navigation' : 'Linear Only'}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Results Display</h4>
-                <p className="text-sm text-gray-600">Show results immediately after completion</p>
-              </div>
-              <button
-                onClick={toggleShowResults}
-                className={`rounded px-4 py-2 transition-colors ${
-                  exam.showResults
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
-              >
-                {exam.showResults ? 'Show Results' : 'Hide Results'}
-              </button>
-            </div>
-          </div>
-
-          {/* Access Settings */}
-          <div className="space-y-4 rounded-md bg-gray-50 p-4">
-            <h3 className="text-lg font-semibold">Access Settings</h3>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Public Access</h4>
-                <p className="text-sm text-gray-600">Make exam accessible via public link</p>
-              </div>
-              <button
-                onClick={togglePublicAccess}
-                className={`rounded px-4 py-2 transition-colors ${
-                  exam.publicActive
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
-              >
-                {exam.publicActive ? 'Public' : 'Private'}
-              </button>
-            </div>
-
-            {exam.publicActive && exam.publicLink && (
-              <div className="mt-2">
-                <label className="mb-2 block text-sm font-medium text-gray-700">Public Link</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={exam.publicLink}
-                    className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
-                    readOnly
-                  />
-                  <button
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        `https://q-shuffle.vercel.app/exams/${exam.publicLink || ''}`,
-                      )
-                    }
-                    className="rounded bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="w-full max-w-sm rounded-lg bg-white p-6">
-              <h3 className="mb-2 text-lg font-semibold">Delete Exam</h3>
-              <p className="mb-4 text-gray-600">
-                Are you sure you want to delete this exam? This action cannot be undone.
-              </p>
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={async () => {
-                    await deleteExam();
-                    setShowDeleteConfirm(false);
-                  }}
-                  className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Delete confirmation modal */}
+        {renderDeleteConfirmModal()}
       </div>
     </div>
   );
