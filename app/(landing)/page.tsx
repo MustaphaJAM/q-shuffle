@@ -234,7 +234,7 @@ export default function Home(): JSX.Element {
                 </motion.span>{' '}
                 by{' '}
                 <a
-                  href="https://github.com/mustapha-jamaaoui"
+                  href="https://github.com/MustaphaJAM"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="relative font-medium text-customOrange transition-colors duration-300 hover:text-customOrangeGradiant"
